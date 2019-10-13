@@ -1,0 +1,27 @@
+{
+  "name": "syltelegrambot",
+  "version": "1.0.0",
+  "description": "Personal Telegram Bot Assistant based on Sylphrena, from the Stormlight Archive",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Kaysera/SylTelegramBot.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Kaysera/SylTelegramBot/issues"
+  },
+  "homepage": "https://github.com/Kaysera/SylTelegramBot#readme",
+  "dependencies": {
+    "express": "^4.17.1",
+    "goodreads-api-node": "https://github.com/Kaysera/goodreads-api-node/tarball/master",
+    "mongoose": "^5.7.4",
+    "node-fetch": "^2.6.0",
+    "node-telegram-bot-api": "^0.30.0"
+  }
+}
