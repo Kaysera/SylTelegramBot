@@ -19,21 +19,24 @@ app.get('/login', function (req, res) {
   app.get('/oauth_callback', function (req, res) {
   
     gr.getAccessToken().then(() => {
-      var tokenPair = gr.dumpAccessToken()
-      var chatid = req.query.chatid.split('?')[0]
-      var newToken = new GoodreadsTokenModel({chatID: chatid, accessToken: tokenPair.ACCESS_TOKEN, accessSecret: tokenPair.ACCESS_TOKEN_SECRET})
-      newToken.save(function(err, userResult){
-        if(err) throw err;
+      gr.getCurrentUserInfo().then(info => {
+        var tokenPair = gr.dumpAccessToken()
+        var chatid = req.query.chatid.split('?')[0]
+        var newToken = new GoodreadsTokenModel({chatID: chatid, accessToken: tokenPair.ACCESS_TOKEN, accessSecret: tokenPair.ACCESS_TOKEN_SECRET, goodreadsID: info.user.id})
+        newToken.save(function(err, userResult){
+          if(err) throw err;
+        })
+        bot.sendMessage(chatid, 'Successfully logged in')
+        res.send('You can close this window')
       })
-      bot.sendMessage(chatid, 'Successfully logged in')
-      res.send('You can close this window')
+      
     })
   
   });
   
   app.get('/whoami', (req, res) => {
     gr.initOAuth();
-    //token = { ACCESS_TOKEN: 'XXX', ACCESS_TOKEN_SECRET: 'XXXXXX' }
+    // token = { ACCESS_TOKEN: 'XXX', ACCESS_TOKEN_SECRET: 'xxxxxx' }
     gr.setAccessToken(token).then(() => {
       gr.getCurrentUserInfo().then(info => {
         res.send(info)
@@ -41,6 +44,20 @@ app.get('/login', function (req, res) {
     })
   })
   
+
+  app.get('/test', (req, res) => {
+    gr.initOAuth();
+    // token = { ACCESS_TOKEN: 'XXX', ACCESS_TOKEN_SECRET: 'xxxxxx' }
+    gr.setAccessToken(token).then(() => {
+      gr.setReadStatus('33633687', '64').then(result => {
+        res.send(result)
+      })
+    })
+
+
+  })
+
+
   app.listen(3000, function () {
     console.log('Example app listening on port 3000!');
   });

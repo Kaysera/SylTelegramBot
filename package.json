@@ -22,6 +22,7 @@
     "goodreads-api-node": "https://github.com/Kaysera/goodreads-api-node/tarball/master",
     "mongoose": "^5.7.4",
     "node-fetch": "^2.6.0",
-    "node-telegram-bot-api": "^0.30.0"
+    "node-telegram-bot-api": "^0.30.0",
+    "nodemon": "^1.19.3"
   }
 }
