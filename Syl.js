@@ -1,6 +1,7 @@
 const TelegramBot = require('node-telegram-bot-api');
 const {GoodreadsTokenModel} = require('./Models/GoodreadsToken.js')
 const {gr} = require('./goodreads.js')
+const generadorInsultos = require('./generadorInsultos')
 
 const token = process.env.BOT_TOKEN;
 
@@ -54,6 +55,7 @@ export default class Syl {
       })
   }
   sendMessage(chatId, message) {
-    this.bot.sendMessage(chatId, message)
+    const insulto = generadorInsultos();
+    this.bot.sendMessage(chatId, `${message}, ${insulto}`)
   }
 }
