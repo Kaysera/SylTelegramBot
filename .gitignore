@@ -62,5 +62,4 @@ typings/
 
 # Various token files
 bot.js
-goodreads.js
 database.js
