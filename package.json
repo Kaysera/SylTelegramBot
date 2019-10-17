@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/Kaysera/SylTelegramBot#readme",
   "dependencies": {
+    "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "goodreads-api-node": "https://github.com/Kaysera/goodreads-api-node/tarball/master",
     "mongoose": "^5.7.4",
