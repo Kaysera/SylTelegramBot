@@ -39,6 +39,7 @@ app.get('/oauth_callback', function (req, res) {
 app.get('/whoami', (req, res) => {
   gr.initOAuth();
   //token = { ACCESS_TOKEN: 'XXX', ACCESS_TOKEN_SECRET: 'XXXXXX' }
+  
   gr.setAccessToken(token).then(() => {
     gr.getCurrentUserInfo().then(info => {
       res.send(info)
