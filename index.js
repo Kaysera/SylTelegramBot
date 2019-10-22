@@ -13,6 +13,7 @@ const {TodoistLabelModel} = require('./Models/TodoistLabel.js')
 const app = express();
 mongoose.connect(process.env.DB_URL, { useNewUrlParser: true });
 const SylBot = new Syl();
+const address = process.env.ADDRESS
 
 app.get('/', function (req, res) {
   console.log('Patata')
@@ -22,6 +23,7 @@ app.get('/', function (req, res) {
 app.get('/login', function (req, res) {
   gr.initOAuth(`${address}/oauth_callback?chatid=${req.query.chatid}`);
   gr.getRequestToken().then(url => {
+    console.log(url)
     res.redirect(url)
   })
 });
@@ -33,7 +35,7 @@ app.get('/createtodoistdb', (req, res) => {
   var queryString = "?token=" + process.env.TODOIST_TOKEN + "&sync_token=%27*%27&resource_types=[%22" + resources + "%22]";
   var url = apiURL + queryString
   fetch(url, {
-    method: 'GET', // or 'PUT'
+    method: 'GET',
     headers:{
       'Content-Type': 'application/x-www-form-urlencoded'
     }
@@ -45,7 +47,7 @@ app.get('/createtodoistdb', (req, res) => {
     queryString = "?token=" + process.env.TODOIST_TOKEN + "&sync_token=%27*%27&resource_types=[%22" + resources + "%22]";
     url = apiURL + queryString
     fetch(url, {
-      method: 'GET', // or 'PUT'
+      method: 'GET',
       headers:{
         'Content-Type': 'application/x-www-form-urlencoded'
       }
@@ -57,7 +59,7 @@ app.get('/createtodoistdb', (req, res) => {
         queryString = "?token=" + process.env.TODOIST_TOKEN + "&sync_token=%27*%27&resource_types=[%22" + resources + "%22]";
         url = apiURL + queryString
         fetch(url, {
-          method: 'GET', // or 'PUT'
+          method: 'GET',
           headers:{
             'Content-Type': 'application/x-www-form-urlencoded'
           }
@@ -66,11 +68,11 @@ app.get('/createtodoistdb', (req, res) => {
         .then(its => {
           var labels = its.labels
           processDB(projects, items, labels, user)
+          res.json({success: 'Done'})
         });
     });
   });
 
-  res.json({success: 'Done'})
 })
 
 function processDB(projects, items, labels, user) {
@@ -78,6 +80,15 @@ function processDB(projects, items, labels, user) {
   for (var i = 0; i < projects.length; i++) {
     projectsDict[projects[i].id] = projects[i]
     projectsDict[projects[i].id].items = []
+    projectsDict[projects[i].id].children = []
+  }
+
+  for (var i = 0; i < projects.length; i++) {
+    var parent = projects[i].parent_id
+    if (parent != null) {
+      projectsDict[projects[i].parent_id].children.push(projects[i].id)
+
+    }
   }
 
   for (var i = 0; i < items.length; i++) {
@@ -103,7 +114,7 @@ function processLabel(label, user) {
 }
 
 function processProject(project, user) {
-  var newProject = new TodoistProjectModel({_id: project.id, user: user, name: project.name, parent: project.parent_id, child_order: project.child_order, is_archived: project.is_archived, items: project.items})
+  var newProject = new TodoistProjectModel({_id: project.id, user: user, name: project.name, parent: project.parent_id, child_order: project.child_order, is_archived: project.is_archived, items: project.items, children: project.children})
   newProject.save(function(err, userResult){
     if(err) throw err;
   })
@@ -130,21 +141,10 @@ app.get('/oauth_callback', function (req, res) {
     newToken.save(function(err, userResult){
       if(err) throw err;
     })
-    bot.sendMessage(chatid, 'Successfully logged in')
+    SylBot.sendMessage(chatid, 'Successfully logged in')
     res.send('You can close this window')
   })
 });
-
-app.get('/whoami', (req, res) => {
-  gr.initOAuth();
-  //token = { ACCESS_TOKEN: 'XXX', ACCESS_TOKEN_SECRET: 'XXXXXX' }
-  
-  gr.setAccessToken(token).then(() => {
-    gr.getCurrentUserInfo().then(info => {
-      res.send(info)
-    })
-  })
-})
 
 app.listen(3000, function () {
   console.log('Example app listening on port 3000!');

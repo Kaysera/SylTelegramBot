@@ -59,10 +59,5 @@ typings/
 
 # next.js build output
 .next
-
-<<<<<<< HEAD
-# Various token files
-bot.js
-database.js
-=======
->>>>>>> origin/refactoriza-puto
+/mp3
+ffmpeg
