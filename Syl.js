@@ -160,7 +160,9 @@ class Syl {
   sendPhoto(chatId, photo) {
     this.bot.sendPhoto(chatId, photo)
   }
-
+  setChatAction(chatId, action) {
+    this.bot.sendChatAction(chatId, action)
+  }
   onCallbackQuery(callbackQuery) {
     const action = callbackQuery.data;
     const msg = callbackQuery.message;
@@ -175,6 +177,7 @@ class Syl {
     bot.onText(/\/zorrito/, this.getZorrito.bind(this))
   }
   getGatete(msg) {
+    this.setChatAction(msg.chat.id, 'upload_photo')
     fetch('https://api.thecatapi.com/v1/images/search', {
       method: 'GET',
       headers: {
@@ -187,6 +190,7 @@ class Syl {
       })
   }
   getPerrete(msg) {
+    this.setChatAction(msg.chat.id, 'upload_photo')
     fetch('https://dog.ceo/api/breeds/image/random', {
       method: 'GET',
     }).then(response => response.json())
@@ -196,6 +200,7 @@ class Syl {
       })
   }
   getZorrito(msg) {
+    this.setChatAction(msg.chat.id, 'upload_photo')
     fetch('https://randomfox.ca/floof/', {
       method: 'GET',
     }).then(response => response.json())
