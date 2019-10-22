@@ -24,6 +24,9 @@
     "mongoose": "^5.7.4",
     "node-fetch": "^2.6.0",
     "node-telegram-bot-api": "^0.30.0",
-    "nodemon": "^1.19.3"
+    "nodemon": "^1.19.3",
+    "xkcd-api": "^1.2.0",
+    "youtube-mp3-downloader": "^0.6.3",
+    "youtube-search": "^1.1.4"
   }
 }

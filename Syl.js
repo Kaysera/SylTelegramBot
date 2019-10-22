@@ -3,6 +3,22 @@ const {GoodreadsTokenModel} = require('./Models/GoodreadsToken.js')
 const fetch = require("node-fetch");
 const {gr} = require('./goodreads.js')
 const generadorInsultos = require('./generadorInsultos')
+const youtubeSearch = require('youtube-search')
+var YoutubeMp3Downloader = require("youtube-mp3-downloader");
+var youtubeOpts = {
+  maxResults: 1,
+  key: process.env.YOUTUBE_KEY,
+  type: 'video'
+};
+var YD = new YoutubeMp3Downloader({
+  "ffmpegPath": "./ffmpeg",        // Where is the FFmpeg binary located?
+  "outputPath": "./mp3",    // Where should the downloaded and encoded files be stored?
+  "youtubeVideoQuality": "highest",       // What video quality should be used?
+  "queueParallelism": 20,                  // How many parallel downloads/encodes should be started?
+  "progressTimeout": 2000                 // How long should be the interval of the progress reports
+});
+
+var xkcd = require('xkcd-api');
 
 const botToken = process.env.BOT_TOKEN;
 var token
@@ -24,6 +40,7 @@ class Syl {
     bot = this.addGREndpoints(bot);
     bot = this.addDebugEndpoints(bot);
     bot = this.addAnimalicosEndpoints(bot);
+    bot = this.addUtilEndpoints(bot)
     return bot;
   }
   addGREndpoints(bot) {
@@ -158,10 +175,13 @@ class Syl {
     this.bot.sendMessage(chatId, msg, opts)
   }
   sendPhoto(chatId, photo) {
-    this.bot.sendPhoto(chatId, photo)
+    return this.bot.sendPhoto(chatId, photo)
   }
   setChatAction(chatId, action) {
     this.bot.sendChatAction(chatId, action)
+  }
+  sendAudio(chatId, audio) {
+    return this.bot.sendAudio(chatId, audio)
   }
   onCallbackQuery(callbackQuery) {
     const action = callbackQuery.data;
@@ -172,9 +192,22 @@ class Syl {
     }
   }
   addAnimalicosEndpoints(bot) {
+    bot.onText(/\/animalico/, this.getAnimalico.bind(this))
     bot.onText(/\/gatete/, this.getGatete.bind(this))
     bot.onText(/\/perrete/, this.getPerrete.bind(this))
     bot.onText(/\/zorrito/, this.getZorrito.bind(this))
+    bot.onText(/\/cabrita/, this.getCabrita.bind(this))
+    return bot;
+  }
+  getAnimalico(msg) {
+    const animalicoFunctions = [
+      this.getGatete, 
+      this.getPerrete, 
+      this.getZorrito,
+      this.getCabrita
+    ]
+    const randomAnimalicoFunction = animalicoFunctions[Math.floor(Math.random() * animalicoFunctions.length)].bind(this)
+    randomAnimalicoFunction(msg)
   }
   getGatete(msg) {
     this.setChatAction(msg.chat.id, 'upload_photo')
@@ -208,6 +241,47 @@ class Syl {
         this.sendMessage(msg.chat.id, 'Aqui tienes tu zorrito')
         this.sendPhoto(msg.chat.id, json.image)
       })
+  }
+  getCabrita(msg) {
+    this.setChatAction(msg.chat.id, 'upload_photo')
+    this.sendMessage(msg.chat.id, 'Aqui tienes tu cabrita')
+    const randomNumber = Math.random()*9999999999
+    this.sendPhoto(msg.chat.id, `https://placegoat.com/1000?random=${randomNumber}`)
+  }
+  addUtilEndpoints(bot) {
+    bot.onText(/\/youtubeSong/, this.downloadYoutubeSong.bind(this))
+    bot.onText(/\/xkcd/, this.randomXKCD.bind(this))
+  }
+  downloadYoutubeSong(msg, match) {
+    console.log(msg)
+    const commandName = '/youtubeSong'
+    const songName = msg.text.slice(commandName.length)
+    this.setChatAction(msg.chat.id, 'upload_audio')
+    youtubeSearch(songName, youtubeOpts, (err, res) => {
+      this.setChatAction(msg.chat.id, 'upload_audio')
+      console.log(res)
+      YD.download(res[0].id);
+      let finished = false;
+      YD.on("finished", (err, data) => {
+        if(finished) return
+        else finished = true
+        this.setChatAction(msg.chat.id, 'upload_audio')
+        this.sendAudio(msg.chat.id, data.file)
+        console.log(JSON.stringify(data));
+    });
+    })
+  }
+  randomXKCD(msg) {
+    this.setChatAction(msg.chat.id, 'upload_photo')
+    xkcd.random((error, response) => {
+      if (error) {
+        console.error(error);
+      } else {
+        this.sendPhoto(msg.chat.id, response.img, response.safe_title).then(()=> {
+          this.sendMessage(msg.chat.id, response.alt, {noInsulto: true})
+        })
+      }
+    });
   }
 }
 
