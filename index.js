@@ -3,7 +3,6 @@ require('dotenv').config()
 const mongoose = require('mongoose');
 const Syl = require('./Syl')
 const express = require('express');
-const fetch = require("node-fetch");
 const goodreads = require('goodreads-api-node');
 const {gr} = require('./goodreads.js')
 const {GoodreadsTokenModel} = require('./Models/GoodreadsToken.js')
@@ -11,6 +10,7 @@ const {GoodreadsTokenModel} = require('./Models/GoodreadsToken.js')
 const app = express();
 mongoose.connect(process.env.DB_URL, { useNewUrlParser: true });
 const SylBot = new Syl();
+const address = process.env.ADDRESS
 
 app.get('/', function (req, res) {
   res.send('Hello there, General Kenobi')
@@ -19,6 +19,7 @@ app.get('/', function (req, res) {
 app.get('/login', function (req, res) {
   gr.initOAuth(`${address}/oauth_callback?chatid=${req.query.chatid}`);
   gr.getRequestToken().then(url => {
+    console.log(url)
     res.redirect(url)
   })
 });
@@ -31,7 +32,7 @@ app.get('/oauth_callback', function (req, res) {
     newToken.save(function(err, userResult){
       if(err) throw err;
     })
-    bot.sendMessage(chatid, 'Successfully logged in')
+    SylBot.sendMessage(chatid, 'Successfully logged in')
     res.send('You can close this window')
   })
 });

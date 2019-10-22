@@ -1,5 +1,6 @@
 const TelegramBot = require('node-telegram-bot-api');
 const {GoodreadsTokenModel} = require('./Models/GoodreadsToken.js')
+const fetch = require("node-fetch");
 const {gr} = require('./goodreads.js')
 const generadorInsultos = require('./generadorInsultos')
 
@@ -7,13 +8,13 @@ const botToken = process.env.BOT_TOKEN;
 var token
 var readingShelf = 'currently-reading'
 var selectedBook
+const address = process.env.ADDRESS
 
 class Syl {
   constructor() {
     let bot = new TelegramBot(botToken, {polling: true});
-    bot = this.configure(bot)
-
     this.bot = bot
+    bot = this.configure(bot)
     return this.bot
   }
   configure(bot) {
@@ -22,6 +23,7 @@ class Syl {
 
     bot = this.addGREndpoints(bot);
     bot = this.addDebugEndpoints(bot);
+    bot = this.addAnimalicosEndpoints(bot);
     return bot;
   }
   addGREndpoints(bot) {
@@ -146,10 +148,17 @@ class Syl {
       })
   }
   sendMessage(chatId, message, opts) {
+    if(opts && opts.noInsulto) {
+      this.bot.sendMessage(chatId, message, opts)
+      return;
+    }
     const insulto = generadorInsultos();
     const endChars = '?!,:'
     var msg = (endChars.includes(message.trim().slice(-1))) ? `${message.trim().slice(0,-1)}, ${insulto}${message.trim().slice(-1)}` : `${message.trim()}, ${insulto}`
     this.bot.sendMessage(chatId, msg, opts)
+  }
+  sendPhoto(chatId, photo) {
+    this.bot.sendPhoto(chatId, photo)
   }
 
   onCallbackQuery(callbackQuery) {
@@ -160,7 +169,41 @@ class Syl {
       this.sendMessage(msg.chat.id, `You have selected *${msg.reply_markup.inline_keyboard[action.split('-')[2].trim()][0].text}*\n\nTo set the progress, use /setpage or /setpercent followed by the new progress`, {parse_mode: 'Markdown'});
     }
   }
-
+  addAnimalicosEndpoints(bot) {
+    bot.onText(/\/gatete/, this.getGatete.bind(this))
+    bot.onText(/\/perrete/, this.getPerrete.bind(this))
+    bot.onText(/\/zorrito/, this.getZorrito.bind(this))
+  }
+  getGatete(msg) {
+    fetch('https://api.thecatapi.com/v1/images/search', {
+      method: 'GET',
+      headers: {
+        'x-api-key': '6efc7324-7195-4db1-accc-328020dd0e8f'
+      }
+    }).then(response => response.json())
+      .then(json=>{
+        this.sendMessage(msg.chat.id, 'Aqui tienes tu gatete')
+        this.sendPhoto(msg.chat.id, json[0].url)
+      })
+  }
+  getPerrete(msg) {
+    fetch('https://dog.ceo/api/breeds/image/random', {
+      method: 'GET',
+    }).then(response => response.json())
+      .then(json=>{
+        this.sendMessage(msg.chat.id, 'Aqui tienes tu perrete')
+        this.sendPhoto(msg.chat.id, json.message)
+      })
+  }
+  getZorrito(msg) {
+    fetch('https://randomfox.ca/floof/', {
+      method: 'GET',
+    }).then(response => response.json())
+      .then(json=>{
+        this.sendMessage(msg.chat.id, 'Aqui tienes tu zorrito')
+        this.sendPhoto(msg.chat.id, json.image)
+      })
+  }
 }
 
 module.exports = Syl
