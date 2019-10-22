@@ -2,8 +2,11 @@ const TelegramBot = require('node-telegram-bot-api');
 const {GoodreadsTokenModel} = require('./Models/GoodreadsToken.js')
 const {gr} = require('./goodreads.js')
 const generadorInsultos = require('./generadorInsultos')
+const fetch = require("node-fetch");
+
 
 const botToken = process.env.BOT_TOKEN;
+const address = 'http://sylbot.ddns.net:3000'
 var token
 var readingShelf = 'currently-reading'
 var selectedBook
@@ -30,6 +33,7 @@ class Syl {
     bot.onText(/\/updatebookprogress/, this.updateBookProgressGR.bind(this))
     bot.onText(/\/setpercent/, this.setPercentGR.bind(this))
     bot.onText(/\/setpage/, this.setPageGR.bind(this))
+    bot.onText(/\/createtodoistdb/, this.createTodoistDB.bind(this))
 
     return bot;
   }
@@ -130,6 +134,15 @@ class Syl {
             selectedBook = ''
           })
         })
+      })
+    }
+
+    createTodoistDB(msg) {
+      fetch(`${address}/createtodoistdb?user=${msg.chat.id}`)
+      .then(function(response) {
+        return response.json();
+      }).then(resp => {
+        this.sendMessage(msg.chat.id, JSON.stringify(resp))
       })
     }
 
