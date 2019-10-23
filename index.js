@@ -6,6 +6,7 @@ const express = require('express');
 const fetch = require("node-fetch");
 const {gr} = require('./goodreads.js')
 const {GoodreadsTokenModel} = require('./Models/GoodreadsToken.js')
+const {TodoistPrefsModel} = require('./Models/TodoistPrefs.js')
 const {TodoistItemModel} = require('./Models/TodoistItem.js')
 const {TodoistProjectModel} = require('./Models/TodoistProject.js')
 const {TodoistLabelModel} = require('./Models/TodoistLabel.js')
@@ -27,6 +28,18 @@ app.get('/login', function (req, res) {
     res.redirect(url)
   })
 });
+
+// app.get('/droptodoistdb', (req, res) => {
+//   TodoistItemModel.collection.drop()
+//   TodoistPrefsModel.collection.drop()
+//   TodoistLabelModel.collection.drop()
+//   TodoistProjectModel.collection.drop()
+//   res.send('Done')
+// })
+
+app.get('/test', (req, res) => {
+  res.send('Test')
+})
 
 app.get('/createtodoistdb', (req, res) => {
   var user = req.query.user
@@ -68,6 +81,8 @@ app.get('/createtodoistdb', (req, res) => {
         .then(its => {
           var labels = its.labels
           processDB(projects, items, labels, user)
+          var tp = new TodoistPrefsModel({chatID: user, sync_token: its.sync_token})
+          tp.save()
           res.json({success: 'Done'})
         });
     });
