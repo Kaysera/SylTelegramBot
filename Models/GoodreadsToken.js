@@ -4,6 +4,7 @@ const GoodreadsTokenSchema = {
     accessToken: String,
     accessSecret: String,
     goodreadsID: String,
+    currentlyReadingBook: String,
 }
 
 var GoodreadsTokenModel = mongoose.model('GoodreadsToken', GoodreadsTokenSchema)
