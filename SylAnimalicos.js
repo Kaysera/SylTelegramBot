@@ -3,7 +3,8 @@ const fetch = require("node-fetch");
 class SylAnimalicos {
     constructor(botbase) {
         this.botbase = botbase
-        this.addAnimalicosEndpoints(this.botbase)
+
+        this.addAnimalicosEndpoints(this.botbase.bot)
     }
     addAnimalicosEndpoints(bot) {
         bot.onText(/\/animalico/, this.getAnimalico.bind(this))
@@ -26,7 +27,7 @@ class SylAnimalicos {
       }
     
       getGatete(msg) {
-        this.botbase.setChatAction(msg.chat.id, 'upload_photo')
+        this.botbase.sendChatAction(msg.chat.id, 'upload_photo')
         fetch('https://api.thecatapi.com/v1/images/search', {
           method: 'GET',
           headers: {
@@ -40,7 +41,7 @@ class SylAnimalicos {
       }
     
       getPerrete(msg) {
-        this.botbase.setChatAction(msg.chat.id, 'upload_photo')
+        this.botbase.sendChatAction(msg.chat.id, 'upload_photo')
         fetch('https://dog.ceo/api/breeds/image/random', {
           method: 'GET',
         }).then(response => response.json())
@@ -51,7 +52,7 @@ class SylAnimalicos {
       }
     
       getZorrito(msg) {
-        this.botbase.setChatAction(msg.chat.id, 'upload_photo')
+        this.botbase.sendChatAction(msg.chat.id, 'upload_photo')
         fetch('https://randomfox.ca/floof/', {
           method: 'GET',
         }).then(response => response.json())
@@ -62,7 +63,7 @@ class SylAnimalicos {
       }
     
       getCabrita(msg) {
-        this.botbase.setChatAction(msg.chat.id, 'upload_photo')
+        this.botbase.sendChatAction(msg.chat.id, 'upload_photo')
         this.botbase.sendMessage(msg.chat.id, 'Aqui tienes tu cabrita')
         const randomNumber = Math.random()*9999999999
         this.botbase.sendPhoto(msg.chat.id, `https://placegoat.com/1000?random=${randomNumber}`)

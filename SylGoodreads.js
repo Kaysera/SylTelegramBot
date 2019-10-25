@@ -1,6 +1,5 @@
 
 var readingShelf = 'currently-reading'
-var selectedBook
 const address = process.env.ADDRESS
 const { gr } = require('./goodreads.js')
 const { GoodreadsTokenModel } = require('./Models/GoodreadsToken.js')
@@ -9,7 +8,7 @@ const { GoodreadsTokenModel } = require('./Models/GoodreadsToken.js')
 class SylGoodreads {
   constructor(botbase) {
     this.botbase = botbase
-    this.addGREndpoints(this.botbase)
+    this.addGREndpoints(this.botbase.bot)
   }
   addGREndpoints(bot) {
     bot.onText(/\/login/, this.loginGR.bind(this))

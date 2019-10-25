@@ -9,7 +9,6 @@ class Botbase {
     let bot = new TelegramBot(botToken, { polling: true });
     this.bot = bot
     bot = this.configure(bot, callback)
-    return this.bot
   }
 
   configure(bot, callback) {
@@ -34,8 +33,8 @@ class Botbase {
     return this.bot.sendPhoto(chatId, photo)
   }
 
-  setChatAction(chatId, action) {
-    this.bot.sendChatAction(chatId, action)
+  sendChatAction(chatId, action) {
+    return this.bot.sendChatAction(chatId, action)
   }
 
   sendAudio(chatId, audio) {

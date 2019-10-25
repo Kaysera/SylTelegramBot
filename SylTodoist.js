@@ -15,7 +15,7 @@ const address = process.env.ADDRESS
 class SylTodoist {
   constructor(botbase) {
     this.botbase = botbase
-    this.addTodoistEndpoints(this.botbase)
+    this.addTodoistEndpoints(this.botbase.bot)
   }
   addTodoistEndpoints(bot) {
     bot.onText(/\/createtodoistdb/, this.createTodoistDB.bind(this))
