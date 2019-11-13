@@ -11,13 +11,13 @@ const {TodoistItemModel} = require('./Models/TodoistItem.js')
 const {TodoistProjectModel} = require('./Models/TodoistProject.js')
 const {TodoistLabelModel} = require('./Models/TodoistLabel.js')
 
+
 const app = express();
 mongoose.connect(process.env.DB_URL, { useNewUrlParser: true });
 const SylBot = new Syl();
 const address = process.env.ADDRESS
 
 app.get('/', function (req, res) {
-  console.log('Patata')
   res.send('Hello there, General Kenobi')
 });
 

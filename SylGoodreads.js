@@ -15,6 +15,7 @@ class SylGoodreads {
     bot.onText(/\/updatebookprogress/, this.updateBookProgressGR.bind(this))
     bot.onText(/\/setpercent/, this.setPercentGR.bind(this))
     bot.onText(/\/setpage/, this.setPageGR.bind(this))
+    bot.onText(/\/currentlyreading/, this.currentlyReading.bind(this))
 
     return bot;
   }
@@ -126,6 +127,14 @@ class SylGoodreads {
       })
     })
   
+  }
+
+  currentlyReading(msg) {
+    GoodreadsTokenModel.findOne({chatID: msg.chat.id}).then(grt => {
+      gr.showBook(grt.currentlyReadingBook).then((book) => {
+        this.botbase.sendMessage(msg.chat.id, `You are currently reading *${book.book.title}*. To change it, use the command /updatebookprogress`, {parse_mode: 'Markdown'})
+      })
+    })
   }
 }
 

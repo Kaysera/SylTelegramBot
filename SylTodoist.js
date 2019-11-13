@@ -157,7 +157,7 @@ class SylTodoist {
               }
               TodoistItemModel.findByIdAndUpdate(item.id, { project: item.project_id, content: item.content, due: date, child_order: item.child_order, labels: item.labels, checked: item.checked }, (err, it) => {
                 if (it == null) {
-                  processItem(item, user)
+                  this.processItem(item, user)
                   TodoistProjectModel.findById(item.project_id, (err, project) => {
                     project.items.push(item.id)
                     project.save()
@@ -175,7 +175,7 @@ class SylTodoist {
               var item = resp.labels[i]
               TodoistLabelModel.findByIdAndUpdate(item.id, { project: item.project_id, content: item.content, due: date, child_order: item.child_order, labels: item.labels, checked: item.checked }, (err, it) => {
                 if (it == null) {
-                  processLabel(item, user)
+                  this.processLabel(item, user)
                 }
               })
             }
@@ -184,7 +184,7 @@ class SylTodoist {
               var item = resp.projects[i]
               TodoistProjectModel.findByIdAndUpdate(item.id, { project: item.project_id, content: item.content, due: date, child_order: item.child_order, labels: item.labels, checked: item.checked }, (err, it) => {
                 if (it == null) {
-                  processProject(item, user)
+                  this.processProject(item, user)
                   TodoistProjectModel.findById(item.parent_id, (err, project) => {
                     if (project != null) {
                       project.children.push(item.id)
@@ -202,6 +202,35 @@ class SylTodoist {
       })
     })
 
+  }
+
+  processLabel(label, user) {
+    var newLabel = new TodoistLabelModel({_id: label.id, user: user, name: label.name})
+    newLabel.save(function(err, userResult){
+      if(err) throw err;
+    })
+  }
+  
+  processProject(project, user) {
+    var newProject = new TodoistProjectModel({_id: project.id, user: user, name: project.name, parent: project.parent_id, child_order: project.child_order, is_archived: project.is_archived, items: project.items, children: project.children})
+    newProject.save(function(err, userResult){
+      if(err) throw err;
+    })
+  }
+  
+  processItem(item, user) {
+    if (item == null) return
+    var date
+    if (item.due == null){
+      date = ''
+    }else {
+      date = item.due.date
+    }
+
+    var newItem = new TodoistItemModel({_id: item.id, user: user, project: item.project_id, content: item.content, due: date, child_order: item.child_order, labels: item.labels, checked: item.checked})
+    newItem.save(function(err, userResult){
+      if(err) throw err;
+    })
   }
 
 

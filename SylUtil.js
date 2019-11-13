@@ -1,5 +1,8 @@
+const xkcd = require('xkcd-api');
 const youtubeSearch = require('youtube-search')
-var YoutubeMp3Downloader = require("youtube-mp3-downloader");
+const YoutubeMp3Downloader = require("youtube-mp3-downloader");
+
+
 var youtubeOpts = {
   maxResults: 1,
   key: process.env.YOUTUBE_KEY,
@@ -14,7 +17,6 @@ var YD = new YoutubeMp3Downloader({
   "progressTimeout": 2000                 // How long should be the interval of the progress reports
 });
 
-var xkcd = require('xkcd-api');
 
 class SylUtil {
   constructor(botbase) {
@@ -26,7 +28,56 @@ class SylUtil {
     bot.onText(/\/saluda/, this.saluda.bind(this))
     bot.onText(/\/xkcd/, this.randomXKCD.bind(this))
     bot.onText(/\/rolldice/, this.rollDice.bind(this))
+    bot.onText(/\/fine/, this.apolloFine.bind(this))
+    bot.onText(/\/heke/, this.hamtaroHeke.bind(this))
+    bot.onText(/\/help/, this.help.bind(this))
+    bot.onText(/\/password/, this.passwordGenerator.bind(this))
     return bot
+  }
+
+
+
+  help(msg) {
+    var utilCommands = [
+      '/saluda - Greets the user',
+      '/youtubeSong song - Sends YouTube song as audio note',
+      '/xkcd - Sends a random XKCD comic',
+      '/rolldice XdY - Rolls X dice of Y sides and returns the output (maximum 100 dice)',
+      '/fine - Returns an Apollo Justice image',
+      '/heke - Returns a Hamtaro gif',
+      '/password N - generates a random password of N characters (max 4096 characters)'
+    ]
+
+    var goodreadsCommands = [
+      '/login - Login to your Goodreads account',
+      '/updatebookprogress - Set currently reading book',
+      '/setpercent - Set currently reading book percent',
+      '/setpage - Set currently reading book page',
+      '/currentlyreading - Returns currently reading book',
+    ]
+
+    var animalicosCommands = [
+      '/gatete - Returns a cat picture',
+      '/perrete - Returns a dog picture',
+      '/zorrito - Returns a fox picture',
+      '/cabrita - Returns a goat picture',
+      '/animalico - Returns a random animal picture',
+    ]
+
+    var todoistCommands = [
+      '/createtodoistdb - Starts a database with your Todoist data',
+      '/deadline - Next deadline information (date, tasks...)',
+      '/getdailymessage - Message with the tasks for the day'
+    ]
+
+    var commands = [
+      '*Util commands*\n\t\t\t\t\t' + utilCommands.join('\n\t\t\t\t\t'),
+      '*Animalicos commands*\n\t\t\t\t\t' + animalicosCommands.join('\n\t\t\t\t\t'),
+      '*Goodreads commands*\n\t\t\t\t\t' + goodreadsCommands.join('\n\t\t\t\t\t'),
+      '*Todoist commands (beta)*\n\t\t\t\t\t' + todoistCommands.join('\n\t\t\t\t\t'),
+    ]
+    
+    this.botbase.sendMessage(msg.chat.id, `This is the list of all commands:\n\n${commands.join('\n\n')}`, {noInsulto: true, parse_mode: 'Markdown'})
   }
 
 
@@ -42,10 +93,39 @@ class SylUtil {
       this.botbase.sendMessage(msg.chat.id, 'Introduce the right format (XdX) to use the command')
     } else {
       var scores = []
-      for(var i = 0; i < diceRoll[0]; i++) {
+      if(diceRoll[0] < 100) {
+        for(var i = 0; i < diceRoll[0]; i++) {
           scores.push(Math.floor(Math.random() * diceRoll[1]) + 1)
+        }
+        this.botbase.sendMessage(msg.chat.id, `${scores.join(' + ')} = ${scores.reduce((accum, current) => accum += current)}`)
+      }else {
+        this.botbase.sendMessage(msg.chat.id, `Cannot launch more than 100 dice`)
       }
-      this.botbase.sendMessage(msg.chat.id, `${scores.join(' + ')} = ${scores.reduce((accum, current) => accum += current)}`)
+
+    }
+
+  }
+
+  passwordGenerator(msg) {
+    const commandName = '/password '
+    const len = msg.text.slice(commandName.length)
+
+    if(isNaN(len)) {
+      this.botbase.sendMessage(msg.chat.id, 'Introduce the right format (/password N) to use the command')
+      
+    } else {
+      var alphabet = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890@#$%&='
+      var pass = ''
+      if (len <= 4096) {
+        for(var i = 0; i < len; i++) {
+          pass += alphabet.charAt(Math.floor(Math.random() * alphabet.length))
+        }
+        this.botbase.sendMessage(msg.chat.id, `${pass}`, {noInsulto: true})
+      }
+      else {
+        this.botbase.sendMessage(msg.chat.id, `Password too long`, {noInsulto: true})
+      }
+
     }
 
   }
@@ -83,6 +163,15 @@ class SylUtil {
     });
   }
 
+  apolloFine(msg) {
+    this.botbase.sendChatAction(msg.chat.id, 'upload_photo')
+    this.botbase.sendPhoto(msg.chat.id, './img/apollo.jpg')
+  }
+
+  hamtaroHeke(msg) {
+    this.botbase.sendChatAction(msg.chat.id, 'upload_photo')
+    this.botbase.sendDocument(msg.chat.id, './img/hamtaro.gif')
+  }
 
 }
 
