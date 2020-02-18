@@ -18,7 +18,7 @@ class SylTodoist {
     this.addTodoistEndpoints(this.botbase.bot)
   }
   addTodoistEndpoints(bot) {
-    bot.onText(/\/createtodoistdb/, this.createTodoistDB.bind(this))
+    // bot.onText(/\/createtodoistdb/, this.createTodoistDB.bind(this))
     bot.onText(/\/deadline/, this.getDeadline.bind(this))
     bot.onText(/\/getdailymessage/, this.getDailyMessage.bind(this))
     this.createDailyMessage()
@@ -55,17 +55,25 @@ class SylTodoist {
       TodoistItemModel.
         find({ content: 'Fin Asignatura' }).
         exec((err, item) => {
-          var deadline = item[0].due
+          var todayData = new Date();
+          todayData = todayData.toISOString().substring(0, 10)
+          var deadline = todayData
+          console.log(item.length)
           for (var i = 0; i < item.length; i++) {
-            if (this.compareDates(item[i].due, deadline)) {
+            if (this.compareDates(todayData, item[i].due))  {
+              deadline = item[i].due
+              break
+            }
+          }
+          for (var i = 0; i < item.length; i++) {
+            if (this.compareDates(todayData, item[i].due) && this.compareDates(item[i].due, deadline))  {
               deadline = item[i].due
             }
           }
 
           var today = new Date()
           var deadlineDate = new Date(deadline)
-          var diffDays = parseInt((deadlineDate - today) / (1000 * 60 * 60 * 24))
-
+          var diffDays = (parseInt((deadlineDate - today) / (1000 * 60 * 60 * 24))) + 1 
 
           this.getSubjectsByDeadline(deadline, item).then(subjects => {
             var daySubject = subjects[(new Date().getDate()) % 2]
@@ -261,16 +269,25 @@ class SylTodoist {
       TodoistItemModel.
         find({ content: 'Fin Asignatura' }).
         exec((err, item) => {
-          var deadline = item[0].due
+          var todayData = new Date();
+          todayData = todayData.toISOString().substring(0, 10)
+          var deadline = todayData
+          console.log(item.length)
           for (var i = 0; i < item.length; i++) {
-            if (this.compareDates(item[i].due, deadline)) {
+            if (this.compareDates(todayData, item[i].due))  {
+              deadline = item[i].due
+              break
+            }
+          }
+          for (var i = 0; i < item.length; i++) {
+            if (this.compareDates(todayData, item[i].due) && this.compareDates(item[i].due, deadline))  {
               deadline = item[i].due
             }
           }
 
           var today = new Date()
           var deadlineDate = new Date(deadline)
-          var diffDays = parseInt((deadlineDate - today) / (1000 * 60 * 60 * 24))
+          var diffDays = (parseInt((deadlineDate - today) / (1000 * 60 * 60 * 24))) + 1 
 
           this.botbase.sendMessage(msg.chat.id, `The next deadline is on ${deadline} --- ${diffDays} days left\nTasks left to do: `, { noInsulto: true })
 

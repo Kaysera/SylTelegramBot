@@ -2,6 +2,16 @@ const xkcd = require('xkcd-api');
 const youtubeSearch = require('youtube-search')
 const YoutubeMp3Downloader = require("youtube-mp3-downloader");
 
+const snoowrap = require('snoowrap');
+
+const r = new snoowrap({
+  userAgent: process.env.REDDIT_USER_AGENT,
+  clientId: process.env.REDDIT_ID,
+  clientSecret: process.env.REDDIT_SECRET,
+  username: process.env.REDDIT_USERNAME,
+  password: process.env.REDDIT_PASSWORD
+});
+
 
 var youtubeOpts = {
   maxResults: 1,
@@ -32,6 +42,7 @@ class SylUtil {
     bot.onText(/\/heke/, this.hamtaroHeke.bind(this))
     bot.onText(/\/help/, this.help.bind(this))
     bot.onText(/\/password/, this.passwordGenerator.bind(this))
+    bot.onText(/https:\/\/www.reddit.com/, this.redditPicture.bind(this))
     return bot
   }
 
@@ -45,7 +56,8 @@ class SylUtil {
       '/rolldice XdY - Rolls X dice of Y sides and returns the output (maximum 100 dice)',
       '/fine - Returns an Apollo Justice image',
       '/heke - Returns a Hamtaro gif',
-      '/password N - generates a random password of N characters (max 4096 characters)'
+      '/password N - generates a random password of N characters (max 4096 characters)',
+      'reddit url - sends the image associated with the post'
     ]
 
     var goodreadsCommands = [
@@ -65,7 +77,7 @@ class SylUtil {
     ]
 
     var todoistCommands = [
-      '/createtodoistdb - Starts a database with your Todoist data',
+      // '/createtodoistdb - Starts a database with your Todoist data',
       '/deadline - Next deadline information (date, tasks...)',
       '/getdailymessage - Message with the tasks for the day'
     ]
@@ -148,6 +160,15 @@ class SylUtil {
         console.log(JSON.stringify(data));
       });
     })
+  }
+
+  redditPicture(msg, match) {
+    const post = msg.text.split('/')[6]
+    r.getSubmission(post).fetch().then(submission => {
+      var img = submission.url
+      this.botbase.sendChatAction(msg.chat.id, 'upload_photo')
+      this.botbase.sendPhoto(msg.chat.id, img)
+    });
   }
 
   randomXKCD(msg) {
