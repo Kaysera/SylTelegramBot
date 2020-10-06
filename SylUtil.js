@@ -1,6 +1,7 @@
 const xkcd = require('xkcd-api');
 const youtubeSearch = require('youtube-search')
 const YoutubeMp3Downloader = require("youtube-mp3-downloader");
+const request = require('request')
 
 const snoowrap = require('snoowrap');
 
@@ -8,8 +9,7 @@ const r = new snoowrap({
   userAgent: process.env.REDDIT_USER_AGENT,
   clientId: process.env.REDDIT_ID,
   clientSecret: process.env.REDDIT_SECRET,
-  username: process.env.REDDIT_USERNAME,
-  password: process.env.REDDIT_PASSWORD
+  refreshToken: process.env.REDDIT_REFRESH_TOKEN,
 });
 
 
@@ -42,6 +42,7 @@ class SylUtil {
     bot.onText(/\/heke/, this.hamtaroHeke.bind(this))
     bot.onText(/\/help/, this.help.bind(this))
     bot.onText(/\/password/, this.passwordGenerator.bind(this))
+    bot.onText(/\/coronaspain/, this.coronaSpain.bind(this))
     bot.onText(/https:\/\/www.reddit.com/, this.redditPicture.bind(this))
     return bot
   }
@@ -193,6 +194,73 @@ class SylUtil {
     this.botbase.sendChatAction(msg.chat.id, 'upload_photo')
     this.botbase.sendDocument(msg.chat.id, './img/hamtaro.gif')
   }
+
+  coronaRequest(msg, url, tipo) {
+    var requestClient = request.defaults({jar: true, headers: {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:74.0) Gecko/20100101 Firefox/74.0'}})
+    requestClient.get(url, (err, res, body) => {
+      if( body.includes('404: Not Found')) { 
+        console.log('error')
+
+      } else {
+        var firstLine = body.split('\n')[0].split(',')
+        var ccaa = 0
+        var date = firstLine[firstLine.length-1]
+        for (var i in firstLine) {
+          if (firstLine[i] === 'CCAA') {
+            ccaa = i
+          }
+        }
+
+        var logs = body.split('\n').slice(1,-1)
+        var casos = {}
+        for (var i in logs) {
+          var elem = logs[i].split(',')
+          casos[elem[ccaa]] = parseInt(elem[elem.length - 1])
+        }
+  
+        // Create items array
+        var items = Object.keys(casos).map(function(key) {
+          return [key, casos[key]];
+        });
+  
+        // Sort the array based on the second element
+        items.sort(function(first, second) {
+          return second[1] - first[1];
+        });
+  
+        var message = `${tipo} de Coronavirus: ${date}\n`
+
+        for(var i in items) {
+          elem = items[i]
+          message += `${elem[0]}: ${elem[1]}\n`
+        }
+  
+        this.botbase.sendMessage(msg.chat.id, message, { noInsulto: true })
+      }
+    })
+
+  }
+  
+
+  coronaSpain(msg) {
+    var param = msg.text.slice(12).trim()
+
+    if(param === 'casos' || param === '') {
+      var url = `https://raw.githubusercontent.com/datadista/datasets/master/COVID%2019/ccaa_covid19_casos.csv`
+      this.coronaRequest(msg, url, 'Casos')
+    } else if (param === 'uci') {
+      var url = `https://raw.githubusercontent.com/datadista/datasets/master/COVID%2019/ccaa_covid19_uci.csv`
+      this.coronaRequest(msg, url, 'UCI')
+    } else if (param === 'fallecidos') {
+      var url = `https://raw.githubusercontent.com/datadista/datasets/master/COVID%2019/ccaa_covid19_fallecidos.csv`
+      this.coronaRequest(msg, url, 'Fallecidos')
+    } else {
+      this.botbase.sendMessage(msg.chat.id, 'No se reconoce el parámetro. Pruebe casos, uci o fallecidos', { noInsulto: true })
+    }
+    this.coronaRequest(msg, new Date())
+  }
+
+
 
 }
 

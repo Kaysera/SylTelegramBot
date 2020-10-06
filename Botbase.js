@@ -1,8 +1,9 @@
 const TelegramBot = require('node-telegram-bot-api');
-
+ 
 const generadorInsultos = require('./generadorInsultos')
 const botToken = process.env.BOT_TOKEN;
 
+  
 
 class Botbase {
   constructor(callback) {
@@ -20,13 +21,16 @@ class Botbase {
 
   sendMessage(chatId, message, opts) {
     if (opts && opts.noInsulto) {
-      this.bot.sendMessage(chatId, message, opts)
-      return;
+      return this.bot.sendMessage(chatId, message, opts)
     }
     const insulto = generadorInsultos();
     const endChars = '?!,:'
     var msg = (endChars.includes(message.trim().slice(-1))) ? `${message.trim().slice(0, -1)}, ${insulto}${message.trim().slice(-1)}` : `${message.trim()}, ${insulto}`
-    this.bot.sendMessage(chatId, msg, opts)
+    return this.bot.sendMessage(chatId, msg, opts)
+  }
+
+  editMessageText(message, opts) {
+    return this.bot.editMessageText(message, opts)
   }
 
   sendPhoto(chatId, photo) {

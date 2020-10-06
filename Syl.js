@@ -2,6 +2,7 @@ const SylUtil = require('./SylUtil')
 const SylAnimalicos = require('./SylAnimalicos')
 const SylGoodreads = require('./SylGoodreads')
 const SylTodoist = require('./SylTodoist')
+const SylUCLM = require('./SylUCLM')
 const { GoodreadsTokenModel } = require('./Models/GoodreadsToken.js')
 const Botbase = require('./Botbase')
 
@@ -14,9 +15,10 @@ class Syl {
   configure() {
     this.bb = new Botbase(this.onCallbackQuery.bind(this))
     const SylUtilBot = new SylUtil(this.bb);
+    const SylUCLMBot = new SylUCLM(this.bb);
     const SylAnimalicosBot = new SylAnimalicos(this.bb);
+//    const SylTodoistBot = new SylTodoist(this.bb); Deprecated
     const SylGoodreadsBot = new SylGoodreads(this.bb);
-    const SylTodoistBot = new SylTodoist(this.bb);
   }
 
   onCallbackQuery(callbackQuery) {
