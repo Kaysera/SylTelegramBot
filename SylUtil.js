@@ -40,6 +40,7 @@ class SylUtil {
     bot.onText(/\/rolldice/, this.rollDice.bind(this))
     bot.onText(/\/fine/, this.apolloFine.bind(this))
     bot.onText(/\/heke/, this.hamtaroHeke.bind(this))
+    bot.onText(/\/myID/, this.getID.bind(this))
     bot.onText(/\/help/, this.help.bind(this))
     bot.onText(/\/password/, this.passwordGenerator.bind(this))
     bot.onText(/\/coronaspain/, this.coronaSpain.bind(this))
@@ -48,6 +49,9 @@ class SylUtil {
   }
 
 
+  getID(msg) {
+    this.botbase.sendMessage(msg.chat.id, msg.chat.id, {noInsulto: true})
+  }
 
   help(msg) {
     var utilCommands = [
@@ -166,9 +170,17 @@ class SylUtil {
   redditPicture(msg, match) {
     const post = msg.text.split('/')[6]
     r.getSubmission(post).fetch().then(submission => {
-      var img = submission.url
+      // console.log(submission)
       this.botbase.sendChatAction(msg.chat.id, 'upload_photo')
-      this.botbase.sendPhoto(msg.chat.id, img)
+      if (submission.secure_media) {
+        var vid_url = submission.secure_media.reddit_video.fallback_url
+        this.botbase.sendVideo(msg.chat.id, vid_url)
+
+      } else {
+        var img = submission.url
+        this.botbase.sendPhoto(msg.chat.id, img)
+      }
+      
     });
   }
 

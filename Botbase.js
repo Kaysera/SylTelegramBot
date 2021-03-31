@@ -49,6 +49,10 @@ class Botbase {
     return this.bot.sendDocument(chatId, audio)
   }
 
+  sendVideo(chatId, audio) {
+    return this.bot.sendVideo(chatId, audio)
+  }
+
 }
 
 module.exports = Botbase
